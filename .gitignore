@@ -1,0 +1,7 @@
+*.zip
+bedrock-server/
+*.log
+*.exe
+*.tar
+*.gz
+*.rar
