@@ -4,6 +4,7 @@ import os
 import subprocess
 import time
 import socket
+import argparse
 
 server_properties_base={"server-name":"DK Bedrock Server",
         "gamemode":"survival",
@@ -14,11 +15,7 @@ server_properties_base={"server-name":"DK Bedrock Server",
         "white-list":False,
         "server-port":19132}
 
-class Server:
-    
-    ip=""
-    state=False
-    
+class server:
     def __init__(self, server_url, server_dir="bedrock-server", server_properties=server_properties_base):
         self.server_url=server_url
         self.server_dir=server_dir
@@ -59,6 +56,12 @@ class Server:
             self.process.wait()
             print("Cервер остановлен!")
 
+    def stop_server_programmatically(self):
+        if self.process:
+            self.process.terminate()
+            self.process.wait()
+            print("Cервер остановлен!")
+
     def get_local_ip(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
@@ -68,24 +71,31 @@ class Server:
             s.close()
         return ip
     
-   
+    def get_server_adress(self):
+        return f"{self.get_local_ip()}:{self.server_properties['server-port']}"
     
+def main():
+    parser = argparse.ArgumentParser(description="Управление сервером Minecraft Bedrock Edition.")
+    parser.add_argument("action", choices=["start", "stop", "command"], help="Действие, которое необходимо выполнить c сервером.")
+    parser.add_argument("--cmd", type=str, help="Команда для отправки на сервер (используйте с действием 'command').")
+    args = parser.parse_args()
 
+    server_url = "https://minecraft.azureedge.net/bin-win/bedrock-server-1.20.81.01.zip"
+    server = server(server_url)
 
+    if args.action == "start":
+        server.download_and_extract_server()
+        server.create_server_properties()
+        server.start_server()
+    elif args.action == "stop":
+        server.stop_server_programmatically()
+    elif args.action == "command":
+        if args.cmd:
+            server.send_command(args.cmd)
+        else:
+            print("Данную комманду нельзя отправить на сервер.")
+    else:
+        print("Ошибка.")
 
-
-
-
-
-# 
-
-
-
-# send_command("say Сервер запущен!")
-
-# local_ip = get_local_ip()
-# port = 19132
-# server_address = f"{local_ip}:{port}"
-# print(f"Адресс сервера: {server_address}")
-
-
+if __name__ == "__main__":
+        main()
