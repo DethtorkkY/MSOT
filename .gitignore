@@ -5,3 +5,4 @@ bedrock-server/
 *.tar
 *.gz
 *.rar
+backup/
